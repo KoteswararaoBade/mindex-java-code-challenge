@@ -1,8 +1,10 @@
 package com.mindex.challenge.data;
 
+import org.springframework.data.annotation.Id;
+
 public class Compensation {
     private Employee employee;
-    private String employeeId;
+    @Id private String employeeId;
     private String salary;
     private String effectiveDate;
 
