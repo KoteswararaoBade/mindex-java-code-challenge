@@ -5,7 +5,7 @@ import org.springframework.data.annotation.Id;
 public class Compensation {
     private Employee employee;
     @Id private String employeeId;
-    private String salary;
+    private int salary;
     private String effectiveDate;
 
     public Employee getEmployee() {
@@ -16,11 +16,11 @@ public class Compensation {
         this.employee = employee;
     }
 
-    public String getSalary() {
+    public int getSalary() {
         return salary;
     }
 
-    public void setSalary(String salary) {
+    public void setSalary(int salary) {
         this.salary = salary;
     }
 
@@ -38,5 +38,11 @@ public class Compensation {
 
     public void setEmployeeId(String employeeId) {
         this.employeeId = employeeId;
+    }
+
+    @Override
+    public String toString() {
+        return "Compensation [employee=" + employee + ", employeeId=" + employeeId + ", salary=" + salary
+                + ", effectiveDate=" + effectiveDate + "]";
     }
 }

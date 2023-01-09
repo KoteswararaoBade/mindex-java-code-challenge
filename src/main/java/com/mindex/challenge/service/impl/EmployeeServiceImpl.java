@@ -48,38 +48,59 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeRepository.save(employee);
     }
 
+    /**
+     * This method is used to calculate the number of direct reports for an employee
+     * @param employeeId
+     * @return
+     */
     @Override
-    public ReportingStructure readReportingStructure(String id) {
-        LOG.debug("Creating reporting structure for employee with id [{}]", id);
+    public ReportingStructure readReportingStructure(String employeeId) {
+        LOG.debug("Creating reporting structure for employee with id [{}]", employeeId);
 
-        Employee employee = employeeRepository.findByEmployeeId(id);
+        Employee employee = employeeRepository.findByEmployeeId(employeeId);
 
+        // check if employee exists
         if (employee == null) {
-            throw new RuntimeException("Invalid employeeId: " + id);
+            throw new RuntimeException("Invalid employeeId: " + employeeId);
         }
 
         ReportingStructure reportingStructure = new ReportingStructure();
+        // filling up the details of the employee
         fillDetailsOfDirectReports(employee);
         reportingStructure.setEmployee(employee);
+
+        // calculating the number of direct reports
         reportingStructure.setNumberOfReports(getNumberOfReports(employee));
 
         return reportingStructure;
     }
 
+    /**
+     * This method is used to recursively fill the details of direct reports for an employee
+     * @param employee
+     * @return
+     */
     private void fillDetailsOfDirectReports(Employee employee) {
         if (employee.getDirectReports() != null) {
             for (Employee directReport : employee.getDirectReports()) {
+                // get the details of direct report
                 Employee returned = employeeRepository.findByEmployeeId(directReport.getEmployeeId());
                 directReport.setFirstName(returned.getFirstName());
                 directReport.setLastName(returned.getLastName());
                 directReport.setPosition(returned.getPosition());
                 directReport.setDepartment(returned.getDepartment());
                 directReport.setDirectReports(returned.getDirectReports());
+                // recursively fill the details with direct reports of direct reports
                 fillDetailsOfDirectReports(directReport);
             }
         }
     }
 
+    /**
+     * This method is used to recursively calculate the number of direct reports for an employee
+     * @param employee
+     * @return
+     */
     public int getNumberOfReports(Employee employee) {
         int numberOfReports = 0;
         if (employee.getDirectReports() != null) {
@@ -87,6 +108,8 @@ public class EmployeeServiceImpl implements EmployeeService {
             for (Employee directReport : employee.getDirectReports()) {
                 String id = directReport.getEmployeeId();
                 Employee fullStructureOfDirectReport = employeeRepository.findByEmployeeId(id);
+
+                // recursively calculate the number of direct reports
                 numberOfReports += getNumberOfReports(fullStructureOfDirectReport);
             }
         }

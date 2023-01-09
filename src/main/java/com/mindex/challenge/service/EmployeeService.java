@@ -8,5 +8,10 @@ public interface EmployeeService {
     Employee read(String id);
     Employee update(Employee employee);
 
-    ReportingStructure readReportingStructure(String id);
+    /**
+     * This method is used to read the reporting structure for an employee
+     * @param employeeId
+     * @return
+     */
+    ReportingStructure readReportingStructure(String employeeId);
 }

@@ -4,6 +4,7 @@ import com.mindex.challenge.dao.CompensationRepository;
 import com.mindex.challenge.dao.EmployeeRepository;
 import com.mindex.challenge.data.Compensation;
 import com.mindex.challenge.data.Employee;
+import com.mindex.challenge.exception.BadRequestException;
 import com.mindex.challenge.service.CompensationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,21 +25,28 @@ public class CompensationServiceImpl implements CompensationService {
     public Compensation create(Compensation compensation) {
         LOG.debug("Creating compensation [{}]", compensation);
 
+        // check for valid employee details in the request
         if (compensation.getEmployee() == null && compensation.getEmployeeId() == null) {
-            throw new RuntimeException("Correctly pass employee details");
+            throw new RuntimeException("Employee or employeeId is required");
         }
 
+        String employeeId = null;
         if (compensation.getEmployee() == null) {
-            String employeeId = compensation.getEmployeeId();
-            Employee employee = employeeRepository.findByEmployeeId(employeeId);
-            if (employee == null) {
-                throw new RuntimeException("Invalid employeeId: " + employeeId);
-            }
-            compensation.setEmployee(employee);
+            employeeId = compensation.getEmployeeId();
         } else if (compensation.getEmployeeId() == null) {
-            compensation.setEmployeeId(compensation.getEmployee().getEmployeeId());
+            employeeId = compensation.getEmployee().getEmployeeId();
+            if (employeeId == null) {
+                throw new BadRequestException("Pass employeeId in employee object");
+            }
+            compensation.setEmployeeId(employeeId);
         }
 
+        // Check if employee exists
+        Employee employee = employeeRepository.findByEmployeeId(employeeId);
+        if (employee == null) {
+            throw new BadRequestException("Employee does not exist. Invalid employeeId: " + employeeId);
+        }
+        compensation.setEmployee(employee);
         compensationRepository.insert(compensation);
 
         return compensation;
